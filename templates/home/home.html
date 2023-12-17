@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block base %}
+	<section>
+		<div class="page-header min-vh-100">
+			<div class="container">
+				<div class="row">
+					<div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+						<div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center"
+							 style="background-size: cover;">
+						</div>
+					</div>
+					<div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
+						<div class="card card-plain">
+							<div class="card-header">
+								<h4 class="font-weight-normal">Health Care</h4>
+								<p class="mb-0">We provide top-notched health services
+									<a href="{% url 'core:worker_login' %}" class="font-weight-bold btn bg-gradient-primary w-100 my-4 mb-2">Login as a Health worker</a>
+								</p>
+								<p class="mb-0">Login as a Patient
+									<a href="{% url 'core:patient_login' %}" class="font-weight-bold btn bg-gradient-primary w-100 my-4 mb-2">Login as a Patient</a>
+								</p>
+
+							</div>
+							<div class="card-body">
+							</div>
+							<div class="card-footer text-center pt-0 px-lg-2 px-1">
+								<p class="mb-2 text-sm mx-auto">
+									Terms and Services
+									<a href="{% url 'core:home' %}" class="text-primary text-gradient font-weight-bold">Check here</a>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+{% endblock %}
+

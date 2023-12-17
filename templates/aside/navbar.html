@@ -1,0 +1,36 @@
+{% load static %}
+{% load widget_tweaks %}
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl nav-div-flex" id="navbarBlur" data-scroll="true">
+        <div class="nav-flex1">
+            <h6 class="font-weight-bolder mb-0">Dashboard<span class="font-weight-light"> - {{ request.user.username }}</span></h6>
+        </div>
+        <div class="nav-flex2 search-zoom">
+            <div class="ms-md-auto pe-md-3 search-box">
+                <form>
+                    <div class="input-group input-group-outline">
+                        <label class="form-label">Type here...</label>
+                        <input type="text" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <form action="" method="POST" class="">
+                {% csrf_token %}
+                <div>
+                    <input type="hidden" name="user_id" value="{{ request.user.id }}">
+                    <button class="btn bg-gradient-primary w-100" type="submit">Get zoom videos</button>
+
+                </div>
+            </form>
+        </div>
+        <div class="nav-item d-xl-none ps-3 d-flex align-items-center side-bar-menu-toggler">
+            <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                <div class="sidenav-toggler-inner">
+                    <i class="sidenav-toggler-line"></i>
+                    <i class="sidenav-toggler-line"></i>
+                    <i class="sidenav-toggler-line"></i>
+                </div>
+            </a>
+
+        </div>
+    </nav>
+

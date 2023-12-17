@@ -1,0 +1,71 @@
+{% extends 'base/home-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block body %}
+
+    {% block aside_bar %}
+    {% include 'aside/aside.html' %}
+    {% endblock %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+
+        {% block navbar %}
+        <!-- Navbar -->
+        {% include 'aside/navbar.html' %}
+        <!-- End Navbar -->
+        {% endblock %}
+        {% block pagination %}
+        {% include 'aside/pagination.html' %}
+        {% endblock %}
+
+        <div class="container-fluid py-2 container-fluid-height">
+            {% block zoom_list %}
+            {% if messages %}
+                <div class="alert alert-dark alert-dismissible text-white {% for message in messages %}{% if message.tags %}{{ message.tags }}{% endif %}{% endfor %}" role="alert">
+                    {% for message in messages %}
+                        <span {% if message.tags %} class="{{ message.tags }}" id="{{ message.tags }}" {% endif %}>{{ message }}</span>
+                    {% endfor %}
+                    <button type="button" class="btn-close text-lg py-3 opacity-1" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            {% for file in zoom_files %}
+
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <h6 class="m-0">Zoom Video Name: <span class="font-weight-light text-color">{{ file.zoom_name }}</span></h6>
+                                {% if file.youtube_video_file_url %}
+                                    <h6 class="m-0">Youtube Video Link: <a class="font-weight-light" href="{{ file.youtube_video_file_url }}">Watch on YouTube</a></h6>
+                                {% else %}
+                                    <h6 class="m-0">Youtube Video Link: <span class="font-weight-light">Not available</span></h6>
+                                {% endif %}
+
+                                <h6 class="m-0">Youtube Video Status: <span class="font-weight-light">{{ file.youtube_link_status|yesno:"Uploaded, Not Uploaded" }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                            <div class="card-footer-link">
+                                <a href="{{ file.get_absolute_url }}" class="btn bg-gradient-primary">View Detail</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% endblock %}
+
+            {% block footer %}
+            {% include 'aside/footer.html' %}
+            {% endblock %}
+
+        </div>
+
+    </main>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% load static %}
+        <div class="">
+            <div class="pagination-box">
+                <ul class="pagination pagination-primary">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="material-icons">arrow_back</i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item">
+                        <a class="page-link active" href="?page={{ page_obj.number }}">
+                            {{ page_obj.number }}
+                        </a>
+                    </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="material-icons">arrow_forward</i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>

@@ -1,0 +1,57 @@
+{% extends 'base/form-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block form_body %}
+
+    <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+        <div id="background_img" class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center">
+            <img src="{% static 'img/bincom_login.png' %}" alt="" srcset="">
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5 form-box">
+        <div class="logo-img"><img src="{% static 'asset/img/bincom dev center transparent 1.png' %}" alt="" srcset=""></div>
+        <div class="card card-plain">
+            <div class="card-header">
+                <h4 class="font-weight-bolder">Welcome Back</h4>
+                <p class="mb-0">Please enter your Health Care Credentials</p>
+            </div>
+            <div class="card-body">
+                <form role="form" method="POST" action="{% url 'core:patient_login' %}">
+                    {% csrf_token %}
+
+                    {% if messages %}
+                    <div class="alert alert-danger alert-dismissible text-white">
+                        {% for message in messages %}
+                        <div class="form-input-error">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'core:patient_login' %}" class="btn btn-gradient-primary btn-lg w-100 mt-4 mb-0">Back</a>
+                    {% else %}
+
+                    <div class="input-group input-group-outline mb-3">
+                        {{ form.username|attr:"class:form-control"|attr:"placeholder:Email" }}
+                    </div>
+
+                    <div class="input-group input-group-outline mb-3">
+                        {{ form.password|attr:"class:form-control"|attr:"placeholder:Enter Password" }}
+                    </div>
+                    <div class="text-end"><a href="">Forgot Password?</a></div>
+                    <div class="text-center">
+                         <button type="submit" class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0">Sign In</button>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="card-footer text-center pt-0 px-lg-2 px-1">
+                <p class="mb-2 text-sm mx-auto">
+                    Need a new account?
+                    <a href="{% url 'core:patient_signup' %}" class="text-primary text-gradient font-weight-bold">Register</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}
