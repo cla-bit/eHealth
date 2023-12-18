@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (WorkerSignupView, WorkerLoginView, PatientSignupView,
                     PatientLoginView, HomePageView, WorkerDashboardView,
-                    LogoutView, PatientDashboardView)
+                    LogoutView, PatientDashboardView, PatientInformationView)
 
 
 app_name= 'core'
@@ -14,5 +14,6 @@ urlpatterns = [
     path('patient/login/', PatientLoginView.as_view(), name='patient_login'),
     path('<int:user_id>/worker/dashboard/', WorkerDashboardView.as_view(), name='worker_dashboard'),
     path('<int:user_id>/patient/dashboard', PatientDashboardView.as_view(), name='patient_dashboard'),
+    path('<int:user_id>/patient/information/', PatientInformationView.as_view(), name='patient_information'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
