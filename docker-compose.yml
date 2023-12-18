@@ -1,0 +1,42 @@
+version: '3.11'
+services:
+  # Redis
+  rd-sqlite:
+    image: redis:alpine
+    container_name: rd-sqlite
+    ports:
+      - "6379:6379"
+    volumes:
+      - mydata:/app/data
+
+  # myApp
+  z2y-sqlite:
+    build: ./
+    container_name: z2y-sqlite
+    volumes:
+      - mydata:/app/data
+      - datadb:/app/db.sqlite3
+      - static:/app/staticfiles
+      - media:/app/media
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+  # Celery
+  c-sqlite:
+    restart: always
+    build: ./
+    container_name: c-sqlite
+    command: celery -A backend worker -l INFO
+    depends_on:
+      - rd-sqlite
+      - z2y-sqlite
+    volumes:
+      - mydata:/app/data
+      - datadb:/app/db.sqlite3
+volumes:
+  mydata:
+  datadb:
+  static:
+  media:
