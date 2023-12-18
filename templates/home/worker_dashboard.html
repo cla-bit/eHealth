@@ -9,12 +9,47 @@
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
         {% block navbar %}
-        <!-- Navbar -->
-        {% include 'aside/navbar.html' %}
+            <!-- Navbar -->
+        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl nav-div-flex" id="navbarBlur" data-scroll="true">
+            <div class="nav-flex2 search-zoom">
+                <div class="ms-md-auto pe-md-3 search-box">
+                    <form method="GET" action="{% url 'core:worker_dashboard' user.id %}">
+                        <div class="flex-form">
+                            <div class="input-group input-group-outline form-item">
+                                {{ filter.form.blood_group|attr:'class:form-control'|attr:"placeholder:Blood Group" }}
+                            </div>
+                            <div class="input-group input-group-outline form-item">
+                                <label class="" for="{{ filter.form.is_diabetic.id_for_label }}">{{ filter.form.is_diabetic.label_tag }}</label>
+                                {{ filter.form.is_diabetic|attr:'class:form-control' }}
+                            </div>
+                            <div class="input-group input-group-outline form-item">
+                                <label class="" for="{{ filter.form.has_fever.id_for_label }}">{{ filter.form.has_fever.label_tag }}</label>
+                                {{ filter.form.has_fever|attr:'class:form-control' }}
+                            </div>
+                            <div class="input-group input-group-outline form-item">
+                                <label class="" for="{{ filter.form.has_allergy.id_for_label }}">{{ filter.form.has_allergy.label_tag }}</label>
+                                {{ filter.form.has_allergy|attr:'class:form-control' }}
+                            </div>
+
+                        </div>
+                        <button class="btn btn-sm bg-gradient-primary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+            <div class="nav-item d-xl-none ps-3 d-flex align-items-center side-bar-menu-toggler">
+                <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                    <div class="sidenav-toggler-inner">
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
+                    </div>
+                </a>
+
+            </div>
+        </nav>
         <!-- End Navbar -->
         {% endblock %}
         {% block pagination %}
-        {% include 'aside/pagination.html' %}
         {% endblock %}
 
         <div class="container-fluid py-2 container-fluid-height">
