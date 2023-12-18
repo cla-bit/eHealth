@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget
-from .models import CustomUser, HealthWorker, Patient
+from .models import CustomUser, HealthWorker, Patient, Appointment
 
 
 class WorkerSignupForm(forms.ModelForm):
@@ -19,7 +19,8 @@ class WorkerSignupForm(forms.ModelForm):
         ),
         required=False
     )
-    position = forms.CharField(max_length=32, required=True, label='Position')
+    position = forms.ChoiceField(choices=CustomUser.POSITIONS, required=True,
+                                 widget=forms.Select(attrs={'class': 'select-input'}))
     is_worker = forms.BooleanField(
         required=True,
         label='I agree',
@@ -46,11 +47,11 @@ class WorkerSignupForm(forms.ModelForm):
             raise ValidationError('This phone number is already in use.')
         return phone_number
 
-    def clean_position(self):
-        position = self.cleaned_data.get('position')
-        if not position:
-            raise ValidationError('Please enter a position.')
-        return position
+    # def clean_position(self):
+    #     position = self.cleaned_data.get('position')
+    #     if not position:
+    #         raise ValidationError('Please enter a position.')
+    #     return position
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -78,8 +79,13 @@ class WorkerSignupForm(forms.ModelForm):
 
 
 class WorkerLoginForm(AuthenticationForm):
-    username = forms.CharField()
+    username = forms.EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
     password = forms.CharField(widget=forms.PasswordInput())
+
+    # # remove the autofocus attribute on the username field
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['username'].widget.attrs.pop('autofocus', None)
 
 
 class PatientSignupForm(forms.ModelForm):
@@ -138,5 +144,25 @@ class PatientSignupForm(forms.ModelForm):
 
 
 class PatientLoginForm(AuthenticationForm):
-    username = forms.CharField()
+    username = forms.EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
     password = forms.CharField(widget=forms.PasswordInput())
+
+    # # remove the autofocus attribute on the username field
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['username'].widget.attrs.pop('autofocus', None)
+
+
+class MedicalInfoForm(forms.ModelForm):
+    class Meta:
+        model = Patient
+        is_diabetic = forms.BooleanField(label='Are you Diabetic?')
+        has_allergy = forms.BooleanField(label='Do you have anAllergy?')
+        has_fever = forms.BooleanField(label='Have you experienced Fever?')
+        fields = ['blood_group', 'age', 'gender', 'height', 'weight', 'is_diabetic', 'has_allergy', 'has_fever']
+
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['worker', 'patient', 'date', 'time', 'status']
