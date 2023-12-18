@@ -11,7 +11,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, ListView, DetailView, FormView, TemplateView, UpdateView, CreateView
 from django.views.generic.detail import SingleObjectMixin
-
+from .filters import PatientFilter
 from .forms import WorkerSignupForm, WorkerLoginForm, PatientSignupForm, PatientLoginForm, MedicalInfoForm, \
     AppointmentForm
 from .models import HealthWorker, Patient, CustomUser, Appointment
@@ -121,9 +121,11 @@ class WorkerDashboardView(View):
         worker = HealthWorker.objects.get(user=worker_user)
         patients = Patient.objects.all()
         logout_url = reverse('core:logout')
+        patient_filter = PatientFilter(request.GET, queryset=patients)
+        patients = patient_filter.qs
 
         return render(request, self.template_name, {'worker': worker, 'logout_url': logout_url,
-                                                    'patients': patients})
+                                                    'patients': patients, 'filter': patient_filter})
 
 
 @method_decorator(login_required, name='dispatch')
