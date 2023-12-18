@@ -30,33 +30,73 @@
                 </div>
             {% endif %}
 
-            {% for file in zoom_files %}
-
-            <div class="row mb-2">
-                <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-header p-3 pt-2 pb-0">
-                            <div class="text-start">
-                                <h6 class="m-0">Zoom Video Name: <span class="font-weight-light text-color">{{ file.zoom_name }}</span></h6>
-                                {% if file.youtube_video_file_url %}
-                                    <h6 class="m-0">Youtube Video Link: <a class="font-weight-light" href="{{ file.youtube_video_file_url }}">Watch on YouTube</a></h6>
-                                {% else %}
-                                    <h6 class="m-0">Youtube Video Link: <span class="font-weight-light">Not available</span></h6>
-                                {% endif %}
-
-                                <h6 class="m-0">Youtube Video Status: <span class="font-weight-light">{{ file.youtube_link_status|yesno:"Uploaded, Not Uploaded" }}</span></h6>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card my-4">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Patient List</h6>
                             </div>
                         </div>
-                        <hr class="dark horizontal my-0">
-                        <div class="card-footer px-3 py-2">
-                            <div class="card-footer-link">
-                                <a href="{{ file.get_absolute_url }}" class="btn bg-gradient-primary">View Detail</a>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Patient Name
+                                        </th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Age
+                                        </th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Height
+                                        </th>
+                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Weight
+                                        </th>
+                                        <th class="text-secondary opacity-7"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for patient in patients %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div>
+                                                    <img src="../assets/img/team-2.jpg"
+                                                         class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                                                </div>
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ patient.username }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ patient.user.email }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ patient.age }}</p>
+                                        </td>
+                                        <td class="align-middle text-center text-sm">
+                                            <span class="text-secondary text-xs font-weight-bold">{{ patient.height }}</span>
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <span class="text-secondary text-xs font-weight-bold">{{ patient.weight }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
+                                               data-toggle="tooltip" data-original-title="Edit user">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
 
             {% endblock %}
 
