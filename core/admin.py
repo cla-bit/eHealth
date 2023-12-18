@@ -9,18 +9,17 @@ from .models import CustomUser, HealthWorker, Patient
 class CustomUserAdmin(UserAdmin):
     ordering = ('-date_joined',)
     search_fields = ('email', 'phone_number')
-    list_display = ('email', 'phone_number', 'position', 'is_worker', 'is_staff',
-                    'is_active', 'date_joined')
+    list_display = ('email', 'phone_number', 'is_worker')
     fieldsets = (
         (None, {'fields': ('email', 'username', 'phone_number', 'position', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'groups', 'user_permissions', 'is_superuser')}),
+        ('Permissions', {'fields': ('is_worker', 'is_staff', 'is_active', 'groups', 'user_permissions')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'phone_number', 'position',
+            'fields': ('email', 'username', 'phone_number', 'position', 'is_worker',
                        'password1', 'password2', 'groups', 'user_permissions',
-                       'is_staff', 'is_active', 'is_superuser'),
+                       'is_staff', 'is_active'),
         }),
     )
 
@@ -53,7 +52,7 @@ class HealthWorkerAdmin(admin.ModelAdmin):
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = ('user', 'age', 'gender', 'blood_group', 'weight', 'height', 'is_diabetic')
     list_filter = ('user',)
     search_fields = ('user__username', 'user__email', 'user__phone_number')
 
