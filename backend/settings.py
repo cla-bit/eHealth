@@ -47,6 +47,7 @@ MY_APPS = [
 THIRD_PARTY = [
     'whitenoise.runserver_nostatic',
     'debug_toolbar',
+    'django_filters',
     'widget_tweaks',
 ]
 
