@@ -4,14 +4,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LogoutView
+from django.core.mail import send_mail
+from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import View, ListView, DetailView, FormView, TemplateView
+from django.views.generic import View, ListView, DetailView, FormView, TemplateView, UpdateView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from .forms import WorkerSignupForm, WorkerLoginForm, PatientSignupForm, PatientLoginForm
-from .models import HealthWorker, Patient, CustomUser
+from .forms import WorkerSignupForm, WorkerLoginForm, PatientSignupForm, PatientLoginForm, MedicalInfoForm, \
+    AppointmentForm
+from .models import HealthWorker, Patient, CustomUser, Appointment
 
 
 class HomePageView(TemplateView):
@@ -29,12 +32,12 @@ class WorkerSignupView(View):
             user = form.save(commit=False)
             is_worker = form.cleaned_data.get('is_worker')
             user.save()
+
             if is_worker:
                 worker, created = HealthWorker.objects.get_or_create(user=user)
                 worker.save()
             login(request, user)
             return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.id}))
-        messages
         return render(request, 'forms/health-signup.html', {'form': form})
 
 
@@ -115,10 +118,12 @@ class WorkerDashboardView(View):
             # Handle the case where the user with the given ID does not exist
             return render(request, 'error.html', {'error_message': 'User not found'})
 
-        worker = worker_user.worker  # Assuming the related name is 'health_worker'
+        worker = HealthWorker.objects.get(user=worker_user)
+        patients = Patient.objects.all()
         logout_url = reverse('core:logout')
 
-        return render(request, self.template_name, {'worker': worker, 'logout_url': logout_url})
+        return render(request, self.template_name, {'worker': worker, 'logout_url': logout_url,
+                                                    'patients': patients})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -133,7 +138,90 @@ class PatientDashboardView(View):
             # Handle the case where the user with the given ID does not exist
             return render(request, 'error.html', {'error_message': 'User not found'})
 
-        patient = patient_user.patient  # Assuming the related name is 'health_worker'
+        patient = Patient.objects.get(user=patient_user)
         logout_url = reverse('core:logout')
 
-        return render(request, self.template_name, {'worker': patient, 'logout_url': logout_url})
+        return render(request, self.template_name, {
+            'patient': patient, 'logout_url': logout_url, **patient.__dict__})
+
+
+@method_decorator(login_required, name='dispatch')
+class PatientInformationView(UpdateView):
+    model = Patient
+    form_class = MedicalInfoForm
+    template_name = 'home/patient_information.html'
+
+    def get_object(self, queryset=None):
+        # Ensure that the patient being updated belongs to the current user
+        return self.model.objects.get(user=self.request.user)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user  # Assign the current user to the patient
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:patient_dashboard', kwargs={'user_id': self.request.user.id})
+
+
+@method_decorator(login_required, name='dispatch')
+class BookAppointmentView(View):
+    template_name = 'home/book_appointment.html'
+
+    def get(self, request, *args, **kwargs):
+        form = AppointmentForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            # Assuming 'worker_id' is passed in the URL
+            worker_id = kwargs.get('worker_id')
+            try:
+                worker = HealthWorker.objects.get(id=worker_id)
+            except HealthWorker.DoesNotExist:
+                return render(request, 'error.html', {'error_message': 'Health Worker not found'})
+
+            patient = request.user.patient
+            appointment = form.save(commit=False)
+            appointment.worker = worker
+            appointment.patient = patient
+            appointment.save()
+
+            # Send an email to the worker
+            send_mail(
+                'New Appointment Request',
+                f'Patient {patient.user.email} has requested an appointment with you on {appointment.date} at {appointment.time}.',
+                'from@example.com',
+                [worker.user.email],
+                fail_silently=False,
+            )
+
+            return redirect('core:patient_dashboard', user_id=request.user.id)
+
+        return render(request, self.template_name, {'form': form})
+
+
+@method_decorator(login_required, name='dispatch')
+class AcceptRejectAppointmentView(View):
+    def post(self, request, *args, **kwargs):
+        # Assuming 'appointment_id', 'action' are passed in the URL and 'worker_id' is passed in the context
+        appointment_id = kwargs.get('appointment_id')
+        action = request.POST.get('action')
+        worker_id = request.context['worker_id']
+
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+            worker = HealthWorker.objects.get(id=worker_id)
+        except (Appointment.DoesNotExist, HealthWorker.DoesNotExist):
+            return render(request, 'error.html', {'error_message': 'Appointment or Health Worker not found'})
+
+        if action == 'accept':
+            appointment.status = 'accepted'
+        elif action == 'reject':
+            appointment.status = 'rejected'
+        else:
+            return render(request, 'error.html', {'error_message': 'Invalid action'})
+
+        appointment.save()
+
+        return redirect('core:worker_dashboard', user_id=worker.user.id)
