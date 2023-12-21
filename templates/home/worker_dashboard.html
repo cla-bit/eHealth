@@ -118,7 +118,7 @@
                                             <span class="text-secondary text-xs font-weight-bold">{{ patient.weight }}</span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
+                                            <a href="{% url 'core:patient_detail' user_id=user.id pk=patient.pk %}" class="text-secondary font-weight-bold text-xs"
                                                data-toggle="tooltip" data-original-title="Edit user">
                                                 Edit
                                             </a>
