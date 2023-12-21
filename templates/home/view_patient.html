@@ -1,0 +1,58 @@
+{% extends 'base/home-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block body %}
+
+    {% block aside_bar %}
+    {% include 'aside/aside.html' %}
+    {% endblock %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+        {% block navbar %}
+        {% endblock %}
+
+        <div class="container-fluid py-3 container-fluid-height">
+            <h3>Patient Medical Details: {{ patient.user.username }}</h3>
+            {% block zoom_list %}
+
+            {% if messages %}
+                <div class="alert alert-dark alert-dismissible text-white {% for message in messages %}{% if message.tags %}{{ message.tags }}{% endif %}{% endfor %}" role="alert">
+                    {% for message in messages %}
+                        <span {% if message.tags %} class="{{ message.tags }}" id="{{ message.tags }}" {% endif %}>{{ message }}</span>
+                    {% endfor %}
+                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <h6 class="m-0">Patient Name: <span class="font-weight-light text-color">{{ patient.user.username }}</span></h6>
+                                <h6 class="m-0">Patient Email: <span class="font-weight-light text-color">{{ patient.user.email }}</span></h6>
+                                <h6 class="m-0">Patient Age: <span class="font-weight-light text-color">{{ patient.age }}</span></h6>
+                                <h6 class="m-0">Patient Weight: <span class="font-weight-light text-color">{{ patient.weight }}</span></h6>
+                                <h6 class="m-0">Patient Height: <span class="font-weight-light text-color">{{ patient.height }}</span></h6>
+                                <h6 class="m-0">Patient Blood Group: <span class="font-weight-light text-color">{{ patient.blood_group }}</span></h6>
+                                <h6 class="m-0">Fever History: <span class="font-weight-light text-color">{{ patient.has_fever }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class=" my-3"><a href="{% url 'core:worker_dashboard' request.user.id %}" class="btn bg-gradient-primary">Go Back</a></div>
+            </div>
+
+            {% endblock %}
+
+
+        </div>
+
+    </main>
+
+{% endblock %}
