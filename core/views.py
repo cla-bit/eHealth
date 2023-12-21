@@ -37,7 +37,7 @@ class WorkerSignupView(View):
                 worker, created = HealthWorker.objects.get_or_create(user=user)
                 worker.save()
             login(request, user)
-            return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.id}))
+            return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.pk}))
         return render(request, 'forms/health-signup.html', {'form': form})
 
 
@@ -54,7 +54,7 @@ class WorkerLoginView(View):
             user = authenticate(request, email=email, password=password)
             if user is not None and user.is_worker:
                 login(request, user)
-                return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.id}))
+                return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.pk}))
         messages.error(request, "Invalid Email or password.")
         return render(request, 'forms/health-login.html', {'form': form})
 
@@ -72,7 +72,7 @@ class PatientSignupView(View):
             patient, created = Patient.objects.get_or_create(user=user)
             patient.save()
             login(request, user)
-            return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.id}))
+            return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.pk}))
         return render(request, 'forms/health-signup.html', {'form': form})
 
 
@@ -89,7 +89,7 @@ class PatientLoginView(View):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.id}))
+                return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.pk}))
         messages.error(request, "Invalid Email or password.")
         return render(request, 'forms/patient-login.html', {'form': form})
 
@@ -113,7 +113,7 @@ class WorkerDashboardView(View):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         try:
-            worker_user = CustomUser.objects.get(id=user_id)
+            worker_user = CustomUser.objects.get(pk=user_id)
         except CustomUser.DoesNotExist:
             # Handle the case where the user with the given ID does not exist
             return render(request, 'error.html', {'error_message': 'User not found'})
@@ -129,13 +129,51 @@ class WorkerDashboardView(View):
 
 
 @method_decorator(login_required, name='dispatch')
+class WorkerViewPatientView(DetailView):
+    model = Patient
+    template_name = 'home/view_patient.html'
+    context_object_name = 'patient'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        worker_user = self.kwargs.get('user_id')
+        patient_id = self.get_object()
+
+        context['worker'] = worker_user
+        context['patient'] = patient_id
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class HealthStatisticView(View):
+    template_name = 'home/health_statistic.html'
+
+    def get(self, request, *args, **kwargs):
+        patient_count = Patient.objects.count()
+        diabetic_patients = Patient.objects.filter(is_diabetic=True).count()
+        fever_patients = Patient.objects.filter(has_fever=True).count()
+        allergy_patients = Patient.objects.filter(has_allergy=True).count()
+
+        # chart data
+        labels = ['Patients', 'Diabetic', 'Fever', 'Allergy']
+        data = [patient_count, diabetic_patients, fever_patients, allergy_patients]
+
+        context = {
+            'labels': labels,
+            'data': data
+        }
+
+        return render(request, self.template_name, context)
+
+
+@method_decorator(login_required, name='dispatch')
 class PatientDashboardView(View):
     template_name = 'home/patient_dashboard.html'
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         try:
-            patient_user = CustomUser.objects.get(id=user_id)
+            patient_user = CustomUser.objects.get(pk=user_id)
         except CustomUser.DoesNotExist:
             # Handle the case where the user with the given ID does not exist
             return render(request, 'error.html', {'error_message': 'User not found'})
@@ -177,9 +215,9 @@ class BookAppointmentView(View):
         form = AppointmentForm(request.POST)
         if form.is_valid():
             # Assuming 'worker_id' is passed in the URL
-            worker_id = kwargs.get('worker_id')
+            worker_id = kwargs.get('user_id')
             try:
-                worker = HealthWorker.objects.get(id=worker_id)
+                worker = HealthWorker.objects.get(pk=worker_id)
             except HealthWorker.DoesNotExist:
                 return render(request, 'error.html', {'error_message': 'Health Worker not found'})
 
@@ -227,3 +265,5 @@ class AcceptRejectAppointmentView(View):
         appointment.save()
 
         return redirect('core:worker_dashboard', user_id=worker.user.id)
+
+
