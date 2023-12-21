@@ -1,0 +1,87 @@
+{% extends 'base/home-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block body %}
+
+    {% block aside_bar %}
+    {% include 'aside/aside.html' %}
+    {% endblock %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+
+        {% block navbar %}
+        {% endblock %}
+        {% block pagination %}
+        {% endblock %}
+
+        <div class="container-fluid py-2 container-fluid-height">
+            {% block zoom_list %}
+            {% if messages %}
+                <div class="alert alert-dark alert-dismissible text-white {% for message in messages %}{% if message.tags %}{{ message.tags }}{% endif %}{% endfor %}" role="alert">
+                    {% for message in messages %}
+                        <span {% if message.tags %} class="{{ message.tags }}" id="{{ message.tags }}" {% endif %}>{{ message }}</span>
+                    {% endfor %}
+                    <button type="button" class="btn-close text-lg py-3 opacity-1" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card my-4">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Patient List</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <canvas id="pie-chart" width="400" height="100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endblock %}
+
+            {% block footer %}
+            {% include 'aside/footer.html' %}
+            {% endblock %}
+
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+    <script>
+
+        var config = {
+          type: 'pie',
+          data: {
+            datasets: [{
+              data: {{ data|safe }},
+              backgroundColor: [
+                '#696969', '#808080', '#A9A9A9', '#C0C0C0', '#D3D3D3'
+              ],
+              label: 'Patient Statistics'
+            }],
+            labels: {{ labels|safe }}
+          },
+          options: {
+            responsive: true
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+          var ctx = document.getElementById('pie-chart').getContext('2d');
+          window.myPie = new Chart(ctx, config);
+        });
+
+    </script>
+
+
+{% endblock %}
+
+
+
+
