@@ -50,8 +50,8 @@ class HealthWorker(models.Model):
         self.user.user_permissions.clear()
         super().delete(*args, **kwargs)
 
-    # def get_absolute_url(self):
-    #     return reverse('core:worker_dashboard', args=[self.user.id])
+    def get_absolute_url(self):
+        return reverse('core:worker_detail', args=[self.user.pk])
 
 
 class Patient(models.Model):
@@ -61,6 +61,7 @@ class Patient(models.Model):
     gender = models.CharField(max_length=10, null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
+    # malaria = models.BooleanField(default=False)
     is_diabetic = models.BooleanField(default=False)
     has_allergy = models.BooleanField(default=False)
     has_fever = models.BooleanField(default=False)
@@ -72,6 +73,9 @@ class Patient(models.Model):
 
     def __str__(self):
         return self.user.email
+
+    def get_absolute_url(self):
+        return reverse('core:patient_detail', args=[self.user.pk])
 
 
 class Appointment(models.Model):
@@ -94,3 +98,4 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f'{self.worker.user.email} - {self.patient.user.email} - {self.date} {self.time}'
+
