@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (WorkerSignupView, WorkerLoginView, PatientSignupView,
                     PatientLoginView, HomePageView, WorkerDashboardView,
                     LogoutView, PatientDashboardView, PatientInformationView,
-                    WorkerViewPatientView, HealthStatisticView)
+                    WorkerViewPatientView, HealthStatisticView, BookAppointmentView,
+                    AcceptRejectAppointmentView)
 
 
 app_name= 'core'
@@ -15,7 +16,10 @@ urlpatterns = [
     path('patient/login/', PatientLoginView.as_view(), name='patient_login'),
     path('<int:user_id>/worker/dashboard/', WorkerDashboardView.as_view(), name='worker_dashboard'),
     path('<int:user_id>/worker/patient/detail/<int:pk>/', WorkerViewPatientView.as_view(), name='patient_detail'),
+    path('<int:user_id>/patient/worker/detail/<int:pk>/', BookAppointmentView.as_view(), name='worker_detail'),
     path('<int:user_id>/statistic/', HealthStatisticView.as_view(), name='health_statistic'),
+    # path('<int:user_id>/appointment/book/', BookAppointmentView.as_view(), name='book_appointment'),
+    path('<int:user_id>/appointment/status/', AcceptRejectAppointmentView.as_view(), name='status'),
     path('<int:user_id>/patient/dashboard', PatientDashboardView.as_view(), name='patient_dashboard'),
     path('<int:user_id>/patient/information/', PatientInformationView.as_view(), name='patient_information'),
     path('logout/', LogoutView.as_view(), name='logout'),
