@@ -9,8 +9,31 @@
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
         {% block navbar %}
-        <!-- Navbar -->
-        {% include 'aside/navbar.html' %}
+            <!-- Navbar -->
+        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl nav-div-flex" id="navbarBlur" data-scroll="true">
+            <div class="nav-flex2 search-zoom">
+                <div class="ms-md-auto pe-md-3 search-box">
+                    <form method="GET" action="{% url 'core:patient_dashboard' user.id %}">
+                        <div class="flex-form">
+                            <div class="input-group input-group-outline form-item">
+                                {{ filter.form.department|attr:'class:form-control'|attr:"placeholder:Search for Worker Department" }}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm bg-gradient-primary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+            <div class="nav-item d-xl-none ps-3 d-flex align-items-center side-bar-menu-toggler">
+                <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                    <div class="sidenav-toggler-inner">
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
+                    </div>
+                </a>
+
+            </div>
+        </nav>
         <!-- End Navbar -->
         {% endblock %}
         {% block pagination %}
@@ -75,6 +98,83 @@
 
             </div>
 
+
+            <div class="row mb-4 mt-5">
+                <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+                    <div class="card">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Patient List</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Worker Name
+                                        </th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            Department
+                                        </th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                            View to Book
+                                        </th>
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for worker in workers %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div>
+                                                    <img src="../assets/img/team-2.jpg"
+                                                         class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                                                </div>
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ worker.username }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ worker.user.email }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="text-secondary text-xs font-weight-bold">{{ worker.department }}</span>
+                                        </td>
+
+                                        <td class="align-middle">
+                                            <a href="{% url 'core:worker_detail' user.id worker.pk %}"
+                                               class="text-secondary font-weight-bold text-xs btn btn-sm bg-gradient-primary"
+                                               data-toggle="tooltip" data-original-title="Edit user">
+                                                Click to Book
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">General Statistic</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <canvas id="pie-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
             {% endblock %}
 
             {% block footer %}
@@ -84,5 +184,32 @@
         </div>
 
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+
+    <script>
+
+        var config = {
+          type: 'pie',
+          data: {
+            datasets: [{
+              data: {{ data|safe }},
+              backgroundColor: [
+                '#696969', '#808080', '#A9A9A9', '#C0C0C0', '#D3D3D3'
+              ],
+              label: 'Patient Statistics'
+            }],
+            labels: {{ labels|safe }}
+          },
+          options: {
+            responsive: true
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+          var ctx = document.getElementById('pie-chart').getContext('2d');
+          window.myPie = new Chart(ctx, config);
+        });
+
+    </script>
 
 {% endblock %}
