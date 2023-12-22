@@ -39,7 +39,7 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(HealthWorker)
 class HealthWorkerAdmin(admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = ('user', 'department')
     list_filter = ('user', 'department')
     search_fields = ('user__username', 'user__email', 'user__phone_number')
 
