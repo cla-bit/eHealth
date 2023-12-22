@@ -15,9 +15,25 @@ def send_appointment_email(sender, instance, created, **kwargs):
         to_email = [instance.health_worker.user.email]
         html_message = render_to_string('email/appointment_request.html', {
             'appointment': instance
-        })
-        patient = instance.patient
-        worker = instance.worker
-        if patient and worker:
-            appointment_date = instance.date.strftime('%Y-%m-%d')
+            # 'patient': instance.patient
+            # 'worker': instance.worker
+            # 'date': instance.date
+            # 'time': instance.time
+            # 'status': instance.status
 
+        })
+
+        send_mail(
+            subject,
+            strip_tags(html_message),
+            from_email,
+            to_email,
+            html_message=html_message
+            # fail_silently=False
+            # html_message=html_message
+        )
+
+        # patient = instance.patient
+        # worker = instance.worker
+        # if patient and worker:
+        #     appointment_date = instance.date.strftime('%Y-%m-%d')
