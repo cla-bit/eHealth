@@ -177,7 +177,6 @@ AUTH_USER_MODEL = 'core.CustomUser'
 #     'core.backends.EmailBackend',
 #     'django.contrib.auth.backends.ModelBackend',
 # ]
-
 LOGOUT_REDIRECT_URL = 'core:home'
 
 PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
@@ -199,8 +198,8 @@ CORS_ALLOWED_ORIGINS = ['https://example.com']
 CSRF_TRUSTED_ORIGINS = ['https://example.com']
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = "redis://localhost:6379"  # change localhost to the service name of redis in docker-compose.yml
+CELERY_RESULT_BACKEND = "redis://localhost:6379"  # change localhost to the service name of redis in docker-compose.yml
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Broker connection retry on startup
 
 # debug toolbar settings
