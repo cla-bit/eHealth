@@ -6,21 +6,14 @@
         </div>
         <div class="nav-flex2 search-zoom">
             <div class="ms-md-auto pe-md-3 search-box">
-                <form>
+                <form method="GET">
                     <div class="input-group input-group-outline">
-                        <label class="form-label">Type here...</label>
+                        <label class="form-label">Type any health department</label>
                         <input type="text" class="form-control">
                     </div>
+                    <button class="btn bg-gradient-primary w-100" type="button">Search</button>
                 </form>
             </div>
-            <form action="" method="POST" class="">
-                {% csrf_token %}
-                <div>
-                    <input type="hidden" name="user_id" value="{{ request.user.id }}">
-                    <button class="btn bg-gradient-primary w-100" type="submit">Get zoom videos</button>
-
-                </div>
-            </form>
         </div>
         <div class="nav-item d-xl-none ps-3 d-flex align-items-center side-bar-menu-toggler">
             <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
