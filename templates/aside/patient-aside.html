@@ -38,15 +38,16 @@
                     </a>
                 </li>
 
-                {% url 'core:patient_book' request.user.id  as url %}
+                {% url 'core:book_appointment' request.user.id  as url %}
                 <li class="nav-item">
                     <a class="nav-link text-white {% if request.path == url %} active bg-gradient-primary{% endif %}" href="{{ url }}">
                         <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="material-icons opacity-10">contact_emergency</i>
+                            <i class="material-icons opacity-10">local_hospital</i>
                         </div>
-                        <span class="nav-link-text ms-1">Book an appointment</span>
+                        <span class="nav-link-text ms-1">Book Appointment</span>
                     </a>
                 </li>
+
 
 <!--                <li class="nav-item">-->
 <!--                    <a class="nav-link text-white active bg-gradient-primary" href="#">-->
