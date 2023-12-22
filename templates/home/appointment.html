@@ -1,0 +1,10 @@
+{% load static %}
+{% load widget_tweaks %}
+    <form action="" method="POST" id="upload-form">
+        {% csrf_token %}
+<!--                    <input name="zoom_id" type="hidden" value="{{ zoom_video.id_file }}">-->
+        {{ form.worker|attr:"class:form-control"|attr:"readonly" }}
+        <button type="submit" class="btn bg-gradient-primary">
+            Upload to Youtube
+        </button>
+    </form>
