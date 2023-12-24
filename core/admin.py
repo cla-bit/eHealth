@@ -1,7 +1,7 @@
 from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import CustomUser, HealthWorker, Patient
+from .models import CustomUser, HealthWorker, Patient, Appointment
 
 # Register your models here.
 
@@ -55,6 +55,14 @@ class PatientAdmin(admin.ModelAdmin):
     list_display = ('user', 'age', 'gender', 'blood_group', 'weight', 'height', 'is_diabetic')
     list_filter = ('user',)
     search_fields = ('user__username', 'user__email', 'user__phone_number')
+
+
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ('patient', 'worker', 'date', 'time', 'status')
+    list_filter = ('patient', 'worker', 'date', 'time', 'status')
+    search_fields = ('patient__user__username', 'patient__user__email', 'patient__user__phone_number',
+                     'worker__user__username', 'worker__user__email', 'worker__user__phone_number')
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
