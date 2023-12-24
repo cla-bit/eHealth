@@ -17,6 +17,11 @@ from .forms import WorkerSignupForm, WorkerLoginForm, PatientSignupForm, Patient
 from .models import HealthWorker, Patient, CustomUser, Appointment
 
 
+class IsHealthWorkerPermission:
+    def has_permission(self):
+        return self.request.user.groups.filter(name="Health Worker").exists()
+
+
 class HomePageView(TemplateView):
     template_name = 'home/home.html'
 
@@ -107,7 +112,7 @@ class LogoutView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class WorkerDashboardView(View):
+class WorkerDashboardView(IsHealthWorkerPermission, View):
     template_name = 'home/worker_dashboard.html'
 
     def get(self, request, *args, **kwargs):
@@ -129,7 +134,7 @@ class WorkerDashboardView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class WorkerViewPatientView(DetailView):
+class WorkerViewPatientView(IsHealthWorkerPermission, DetailView):
     model = Patient
     template_name = 'home/view_patient.html'
     context_object_name = 'patient'
@@ -198,71 +203,6 @@ class PatientDashboardView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class PatientViewWorkerView(DetailView):
-    model = HealthWorker
-    template_name = 'home/view_worker.html'
-    context_object_name = 'worker'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        patient_user = self.kwargs.get('user_id')
-        worker_id = self.get_object()
-
-        initial_data = {
-            'patient': patient_user,
-            'worker': worker_id
-        }
-        form = AppointmentForm(initial=initial_data)
-        context['patient'] = patient_user
-        context['worker'] = worker_id
-        context['form'] = form
-
-        return context
-
-
-class PatientBookAppointmentView(SingleObjectMixin, FormView):
-    model = HealthWorker
-    form_class = AppointmentForm
-    template_name = 'home/appointment.html'
-    context_object_name = 'worker'
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().post(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.pop('request', None)
-        return kwargs
-
-    def form_valid(self, form):
-        worker = form.cleaned_data['worker']
-        patient = form.cleaned_data['patient']
-        date = form.cleaned_data['date']
-        time = form.cleaned_data['time']
-
-        print(worker, patient, date, time)
-
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('core:worker_detail', kwargs={'user_id': self.request.user.id})
-
-
-class BookAppointmentView(View):
-    def get(self, request, *args, **kwargs):
-        view = PatientViewWorkerView.as_view()
-        return view(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        view = PatientBookAppointmentView.as_view()
-        return view(request, *args, **kwargs)
-
-@method_decorator(login_required, name='dispatch')
 class PatientInformationView(UpdateView):
     model = Patient
     form_class = MedicalInfoForm
@@ -285,43 +225,31 @@ class BookAppointmentView(View):
     template_name = 'home/appointment.html'
 
     def get(self, request, *args, **kwargs):
-        form = AppointmentForm()
-        return render(request, self.template_name, {'form': form})
+        # Assuming 'worker_id' is passed in the URL
+        patient_id = self.kwargs.get('user_id')
+        patient = Patient.objects.get(user=patient_id)
+        workers = HealthWorker.objects.all()
+        form = AppointmentForm(initial={'patient': patient})
+        return render(request, self.template_name, {'form': form, 'workers': workers})
 
     def post(self, request, *args, **kwargs):
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            # Assuming 'worker_id' is passed in the URL
-            worker_id = self.kwargs.get('user_id')
-            try:
-                worker = HealthWorker.objects.get(pk=worker_id)
-            except HealthWorker.DoesNotExist:
-                return render(request, 'error.html', {'error_message': 'Health Worker not found'})
-
-            patient = request.user.patient
             appointment = form.save(commit=False)
-            appointment.worker = worker
+            patient = Patient.objects.get(user=request.user)
             appointment.patient = patient
+            appointment.status = 'pending'
             appointment.save()
-
-            # Send an email to the worker
-            send_mail(
-                'New Appointment Request',
-                f'Patient {patient.user.email} has requested an appointment with you on {appointment.date} at {appointment.time}.',
-                'from@example.com',
-                [worker.user.email],
-                fail_silently=False,
-            )
 
             messages.success(request, 'Appointment booked successfully.')
 
-            return redirect('core:patient_dashboard', user_id=request.user.id)
+            return redirect('core:book_appointment', user_id=request.user.id)
 
         return render(request, self.template_name, {'form': form})
 
 
 @method_decorator(login_required, name='dispatch')
-class AcceptRejectAppointmentView(View):
+class AcceptRejectAppointmentView(IsHealthWorkerPermission, View):
 
     def get(self, request, *args, **kwargs):
         appointment_id = kwargs.get('appointment_id')
