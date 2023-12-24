@@ -250,35 +250,34 @@ class BookAppointmentView(View):
 
 @method_decorator(login_required, name='dispatch')
 class AcceptRejectAppointmentView(IsHealthWorkerPermission, View):
+    template_name = 'home/status.html'
 
     def get(self, request, *args, **kwargs):
-        appointment_id = kwargs.get('appointment_id')
         worker_id = self.kwargs.get('user_id')
-
         try:
-            appointment = Appointment.objects.get(id=appointment_id)
-            worker = HealthWorker.objects.get(id=worker_id)
+            worker = HealthWorker.objects.get(user=worker_id)
+            appointments = Appointment.objects.filter(worker=worker).filter(status='pending')
         except (Appointment.DoesNotExist, HealthWorker.DoesNotExist):
             return render(request, 'error.html', {'error_message': 'Appointment or Health Worker not found'})
 
-        return render(request, self.template_name, {'appointment': appointment, 'worker': worker})
+        return render(request, self.template_name, {'appointment': appointments})
 
     def post(self, request, *args, **kwargs):
         # Assuming 'appointment_id', 'action' are passed in the URL and 'worker_id' is passed in the context
-        appointment_id = kwargs.get('appointment_id')
+        appointment_id = request.POST.get('item_id')
         worker_id = self.kwargs.get('user_id')
-
+        action = request.POST.get('action')
         try:
             appointment = Appointment.objects.get(id=appointment_id)
-            worker = HealthWorker.objects.get(id=worker_id)
-        except (Appointment.DoesNotExist, HealthWorker.DoesNotExist):
+            # worker = HealthWorker.objects.get(user=worker_id)
+        except (Appointment.DoesNotExist):
             return render(request, 'error.html', {'error_message': 'Appointment or Health Worker not found'})
 
+        if action == 'accept':
+            appointment.accept_appointment()
+        elif action == 'reject':
+            appointment.reject_appointment()
 
-        appointment.save()
-
-        messages.success(request, 'Appointment updated successfully.')
-
-        return redirect('core:worker_dashboard', user_id=worker.user.id)
+        return redirect('core:worker_dashboard', user_id=request.user.id)
 
 
