@@ -2,7 +2,7 @@
 
 # Introduction
 
-This project was started on ***16/12/2023 4:00PM***, hence it might not be complete for some features before the deadline ***17/12/2023 2:00PM***.
+This project was started on ***16/12/2023 4:00PM***, and submitted on ***17/12/2023 2:00PM***.
 
 
 The project is written in Python using the Django web framework and launched in Docker. This simplifies the project’s initial deployment.
