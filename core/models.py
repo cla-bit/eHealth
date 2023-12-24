@@ -96,6 +96,23 @@ class Appointment(models.Model):
         verbose_name = 'Appointment'
         verbose_name_plural = 'Appointments'
 
+    def accept_appointment(self):
+        self.status = 'accepted'
+        self.save()
+
+    def reject_appointment(self):
+        self.status = 'rejected'
+        self.save()
+
+    def total_accepted_appointments(self):
+        return Appointment.objects.filter(worker=self.worker, status='accepted').count()
+
+    def total_rejected_appointments(self):
+        return Appointment.objects.filter(worker=self.worker, status='rejected').count()
+
+    def total_pending_appointments(self):
+        return Appointment.objects.filter(worker=self.worker, status='pending').count()
+
     def __str__(self):
-        return f'{self.worker.user.email} - {self.patient.user.email} - {self.date} {self.time}'
+        return f'{self.worker} - {self.patient} - {self.date} {self.time}'
 
