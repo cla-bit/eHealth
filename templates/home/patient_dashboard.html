@@ -118,9 +118,6 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                             Department
                                         </th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                            View to Book
-                                        </th>
 
                                     </tr>
                                     </thead>
@@ -141,14 +138,6 @@
                                         </td>
                                         <td class="align-middle">
                                             <span class="text-secondary text-xs font-weight-bold">{{ worker.department }}</span>
-                                        </td>
-
-                                        <td class="align-middle">
-                                            <a href="{% url 'core:worker_detail' user.id worker.pk %}"
-                                               class="text-secondary font-weight-bold text-xs btn btn-sm bg-gradient-primary"
-                                               data-toggle="tooltip" data-original-title="Edit user">
-                                                Click to Book
-                                            </a>
                                         </td>
                                     </tr>
                                     {% endfor %}
