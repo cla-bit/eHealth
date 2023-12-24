@@ -163,6 +163,12 @@ class MedicalInfoForm(forms.ModelForm):
 
 
 class AppointmentForm(forms.ModelForm):
+    worker = forms.ModelChoiceField(queryset=HealthWorker.objects.all(), label='Select a Health Worker')
+    patient = forms.CharField(label='Patient Name')
+    date = forms.DateField(label='Date', widget=forms.DateInput(attrs={'type': 'date'}))
+    time = forms.TimeField(label='Time', widget=forms.TimeInput(attrs={'type': 'time'}))
+
     class Meta:
         model = Appointment
         fields = ['worker', 'patient', 'date', 'time']
+
