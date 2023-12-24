@@ -38,7 +38,7 @@ class HealthWorker(models.Model):
         verbose_name_plural = 'Health Workers'
 
     def __str__(self):
-        return self.user.email
+        return self.user.username
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -72,7 +72,7 @@ class Patient(models.Model):
         verbose_name_plural = 'Patients'
 
     def __str__(self):
-        return self.user.email
+        return self.user.username
 
     def get_absolute_url(self):
         return reverse('core:patient_detail', args=[self.user.pk])
@@ -85,7 +85,7 @@ class Appointment(models.Model):
         ('rejected', 'Rejected'),
     )
 
-    worker = models.ForeignKey(HealthWorker, on_delete=models.CASCADE, related_name='appointments')
+    worker = models.ForeignKey(HealthWorker, on_delete=models.CASCADE, related_name='worker')
     patient = models.CharField(max_length=100, null=True, blank=True)
     date = models.DateField()
     time = models.TimeField()
