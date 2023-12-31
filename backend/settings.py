@@ -16,18 +16,16 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =config('SECRET_KEY', cast=str)
+SECRET_KEY = config('SECRET_KEY', cast=str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -38,20 +36,26 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # allauth require this
 ]
 
 MY_APPS = [
     'core.apps.CoreConfig',
 ]
 
-THIRD_PARTY = [
+THIRD_PARTY_APPS = [
+    'allauth',  # added this allauth
+    'allauth.account',  # added this allauth
+    'allauth.socialaccount',  # added this allauth
+    'allauth.socialaccount.providers.google',  # added this allauth provider
     'whitenoise.runserver_nostatic',
     'debug_toolbar',
     'django_filters',
     'widget_tweaks',
+    'phonenumber_field',
 ]
 
-INSTALLED_APPS = THIRD_PARTY + DJANGO_APPS + MY_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,7 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # added this allauth middleware
+    'debug_toolbar.middleware.DebugToolbarMiddleware',  # added this debug toolbar middleware
 ]
 
 # logging
@@ -145,6 +150,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# allauth settings
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -173,14 +187,13 @@ MEDIA_ROOT = BASE_DIR/"media"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.CustomUser'
 
-# AUTHENTICATION_BACKENDS = [
-#     'core.backends.EmailBackend',
-#     'django.contrib.auth.backends.ModelBackend',
-# ]
 LOGOUT_REDIRECT_URL = 'core:home'
+# LOGIN_REDIRECT_URL = 'core:dashboard'
 
-PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
+# phone number field settings for django-phonenumber-field
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
 PHONENUMBER_DEFAULT_REGION = 'NG'
+PHONENUMBER_DEFAULT_FORMAT = 'NATIONAL'
 
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -201,6 +214,35 @@ CSRF_TRUSTED_ORIGINS = ['https://example.com']
 CELERY_BROKER_URL = "redis://localhost:6379"  # change localhost to the service name of redis in docker-compose.yml
 CELERY_RESULT_BACKEND = "redis://localhost:6379"  # change localhost to the service name of redis in docker-compose.yml
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Broker connection retry on startup
+
+# site ID settings
+SITE_ID = 2
+
+# allauth configurations settings
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True  # this is set because i want users to enter username when signing up
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_USER_DISPLAY = 'core.utils.user_display'
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # disable email verification. Other option are "mandatory" and "optional"
+ACCOUNT_FORMS = {
+    'signup': 'core.forms.CustomUserRegistrationForm',
+}
+ACCOUNT_ADAPTER = 'core.adapters.CustomAccountAdapter'
+
+# Provider specific settings for django-allauth
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
 
 # debug toolbar settings
 INTERNAL_IPS = [
