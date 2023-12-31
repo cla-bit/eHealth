@@ -1,0 +1,51 @@
+{% extends 'base/home-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block body %}
+
+    {% block aside_bar %}
+    {% endblock %}
+    <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+
+        <div class="container-fluid py-3 container-fluid-height">
+            {% block zoom_list %}
+
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-center">
+                                <h4 class="p-5">Are you sure you want to logout?</h4>
+                                <form method="POST" action="{% url 'account_logout' %}" id="myForm">
+                                    {% csrf_token %}
+                                    <button id="submitButton" type="submit" class="my-3 btn bg-gradient-primary">Confirm</button>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class=" my-3"><a href="{% url 'core:worker_dashboard' request.user.id %}" class="btn bg-gradient-primary">Go Back</a></div>
+            </div>
+
+            <script>
+                const form = document.getElementById('myForm');
+                const submitButton = document.getElementById('submitButton');
+
+                submitButton.addEventListener('click', function() => {
+                    submitButton.type = 'button';
+                    form.submit();
+                });
+            </script>
+
+            {% endblock %}
+
+
+        </div>
+
+    </main>
+
+{% endblock %}
