@@ -1,0 +1,105 @@
+{% extends 'base/home-base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block body %}
+
+{% block aside_bar %}
+{% include 'aside/aside.html' %}
+{% endblock %}
+<main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+
+
+    <div class="container-fluid py-2 container-fluid-height">
+        {% block zoom_list %}
+        {% if messages %}
+        <div class="alert alert-dark alert-dismissible text-white {% for message in messages %}{% if message.tags %}{{ message.tags }}{% endif %}{% endfor %}" role="alert">
+            {% for message in messages %}
+            <span {% if message.tags %} class="{{ message.tags }}" id="{{ message.tags }}" {% endif %}>{{ message }}</span>
+            {% endfor %}
+            <button type="button" class="btn-close text-lg py-3 opacity-1" data-bs-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+
+        <div class="row mb-2">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header p-3 pt-2 pb-0">
+                        <div class="text-start">
+                            <h2>Fill in your Medical Profession Information</h2>
+                            <form method="post" action="{% url 'core:worker_information' user.id %}">
+                                {% csrf_token %}
+                                <div class="input-group input-group-outline mb-3 form-box-select">
+                                    <label class="form-select-label">Medical Profession</label>
+                                    {{ form.position|attr:"class:form-select" }}
+                                </div>
+
+                                <div class="input-group input-group-outline mb-3">
+                                    {{ form.department|add_class:"form-control"|attr:"placeholder:Department" }}
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <hr class="dark horizontal my-0">
+                    <div class="card-footer px-3 py-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!--        <script>-->
+<!--            document.addEventListener('DOMContentLoaded', function() {-->
+<!--                // Select the form and submit button-->
+<!--                const form = document.querySelector('form');-->
+<!--                const submitButton = document.querySelector('button[type="submit"]');-->
+
+<!--                // Check if form inputs are already filled-->
+<!--                function areFormInputsFilled() {-->
+<!--                    const inputs = form.querySelectorAll('input');-->
+<!--                    for (const input of inputs) {-->
+<!--                        if (!input.value.trim()) {-->
+<!--                            return false; // Return false if any input is not filled-->
+<!--                        }-->
+<!--                    }-->
+<!--                    return true; // All inputs are filled-->
+<!--                }-->
+
+<!--                // Disable the submit button if form inputs are already filled-->
+<!--                if (areFormInputsFilled()) {-->
+<!--                    submitButton.disabled = true;-->
+<!--                }-->
+
+<!--                // Add a submit event listener to the form-->
+<!--                form.addEventListener('submit', function() {-->
+<!--                    // Disable the submit button after form submission-->
+<!--                    submitButton.disabled = true;-->
+
+<!--                    // Optionally, you can change the text of the button to indicate submission-->
+<!--                    submitButton.innerHTML = 'Submitting...';-->
+<!--                });-->
+
+<!--                // Add input event listeners to check for changes in form inputs-->
+<!--                form.addEventListener('input', function() {-->
+<!--                    // Enable the submit button if form inputs are filled-->
+<!--                    submitButton.disabled = !areFormInputsFilled();-->
+<!--                });-->
+<!--            });-->
+<!--        </script>-->
+
+
+        {% endblock %}
+
+        {% block footer %}
+        {% include 'aside/footer.html' %}
+        {% endblock %}
+
+    </div>
+
+</main>
+
+{% endblock %}
