@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),  # change the admin path name
     path('', include('core.urls', namespace='core')),
+    path('accounts/', include('allauth.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ]
 
