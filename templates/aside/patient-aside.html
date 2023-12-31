@@ -2,7 +2,7 @@
         <div class="sidenav-header">
             <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href="{% url 'core:patient_dashboard' user.id %}" target="_blank">
-<!--                 <img src="" class="navbar-brand-img h-100" alt="main_logo"> -->
+                <img src="{% static 'img/bincom dev center transparent 1.png' %}" class="navbar-brand-img h-100" alt="main_logo">
                 <span class="ms-1 font-weight-bold text-white">Health Center</span>
             </a>
         </div>
@@ -38,6 +38,17 @@
                     </a>
                 </li>
 
+                {% url 'core:health_statistic' as url %}
+                <li class="nav-item">
+                    <a class="nav-link text-white {% if request.path == url %} active bg-gradient-primary{% endif %}" href="{{ url }}">
+                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="material-icons opacity-10">local_hospital</i>
+                        </div>
+                        <span class="nav-link-text ms-1">General Statistics</span>
+                    </a>
+                </li>
+
+
                 {% url 'core:book_appointment' request.user.id  as url %}
                 <li class="nav-item">
                     <a class="nav-link text-white {% if request.path == url %} active bg-gradient-primary{% endif %}" href="{{ url }}">
@@ -48,21 +59,10 @@
                     </a>
                 </li>
 
-
-<!--                <li class="nav-item">-->
-<!--                    <a class="nav-link text-white active bg-gradient-primary" href="#">-->
-<!--                        <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">-->
-<!--                            <i class="material-icons opacity-10">table_chart</i>-->
-<!--                        </div>-->
-<!--                        <span class="nav-link-text ms-1">Patients Records</span>-->
-<!--                    </a>-->
-<!--                </li>-->
-
             </ul>
         </div>
-
         <div class="sidenav-footer position-absolute w-100 bottom-0 ">
             <div class="mx-3">
-                <a class="btn bg-gradient-primary w-100" href="{{ logout_url }}" type="button">Sign Out</a>
+                <a class="btn bg-gradient-primary w-100" href="{% url 'account_logout' %}" type="button">Sign Out</a>
             </div>
         </div>
