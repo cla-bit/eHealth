@@ -12,129 +12,70 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View, ListView, DetailView, FormView, TemplateView, UpdateView, CreateView
 from django.views.generic.detail import SingleObjectMixin
 from .filters import PatientFilter, WorkerPositionFilter
-from .forms import WorkerSignupForm, WorkerLoginForm, PatientSignupForm, PatientLoginForm, MedicalInfoForm, \
-    AppointmentForm
+from .forms import MedicalInfoForm, AppointmentForm, WorkerInfoForm
 from .models import HealthWorker, Patient, CustomUser, Appointment
-
-
-class IsHealthWorkerPermission:
-    def has_permission(self):
-        return self.request.user.groups.filter(name="Health Worker").exists()
 
 
 class HomePageView(TemplateView):
     template_name = 'home/home.html'
 
 
-class WorkerSignupView(View):
-    def get(self, request):
-        form = WorkerSignupForm()
-        return render(request, 'forms/health-signup.html', {'form': form})
-
-    def post(self, request):
-        form = WorkerSignupForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            is_worker = form.cleaned_data.get('is_worker')
-            user.save()
-
-            if is_worker:
-                worker, created = HealthWorker.objects.get_or_create(user=user)
-                worker.save()
-            login(request, user)
-            return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.pk}))
-        return render(request, 'forms/health-signup.html', {'form': form})
-
-
-class WorkerLoginView(View):
-    def get(self, request):
-        form = WorkerLoginForm()
-        return render(request, 'forms/health-login.html', {'form': form})
-
-    def post(self, request):
-        form = WorkerLoginForm(request, data=request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, email=email, password=password)
-            if user is not None and user.is_worker:
-                login(request, user)
-                return redirect(reverse('core:worker_dashboard', kwargs={'user_id': user.pk}))
-        messages.error(request, "Invalid Email or password.")
-        return render(request, 'forms/health-login.html', {'form': form})
-
-
-class PatientSignupView(View):
-    def get(self, request):
-        form = PatientSignupForm()
-        return render(request, 'forms/patient-signup.html', {'form': form})
-
-    def post(self, request):
-        form = PatientSignupForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            patient, created = Patient.objects.get_or_create(user=user)
-            patient.save()
-            login(request, user)
-            return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.pk}))
-        return render(request, 'forms/health-signup.html', {'form': form})
-
-
-class PatientLoginView(View):
-    def get(self, request):
-        form = PatientLoginForm()
-        return render(request, 'forms/patient-login.html', {'form': form})
-
-    def post(self, request):
-        form = PatientLoginForm(request, data=request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect(reverse('core:patient_dashboard', kwargs={'user_id': user.pk}))
-        messages.error(request, "Invalid Email or password.")
-        return render(request, 'forms/patient-login.html', {'form': form})
-
-
 @method_decorator(login_required, name='dispatch')
-class LogoutView(View):
-    template_name = 'forms/logout.html'
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
-
-    def post(self, request, *args, **kwargs):
-        logout(request)
-        return redirect('core:home')
-
-
-@method_decorator(login_required, name='dispatch')
-class WorkerDashboardView(IsHealthWorkerPermission, View):
+class WorkerDashboardView(View):
     template_name = 'home/worker_dashboard.html'
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
-        try:
-            worker_user = CustomUser.objects.get(pk=user_id)
-        except CustomUser.DoesNotExist:
-            # Handle the case where the user with the given ID does not exist
-            return render(request, 'error.html', {'error_message': 'User not found'})
+        worker_user = get_object_or_404(CustomUser, pk=user_id)
+        worker = get_object_or_404(HealthWorker, user=worker_user)
 
-        worker = HealthWorker.objects.get(user=worker_user)
+        appointments = Appointment.objects.filter(worker=worker)
+        accepted_count = appointments.filter(status='accepted').count()
+        rejected_count = appointments.filter(status='rejected').count()
+        pending_count = appointments.filter(status='pending').count()
+
+        total_appointments = appointments.count()
+
         patients = Patient.objects.all()
-        logout_url = reverse('core:logout')
         patient_filter = PatientFilter(request.GET, queryset=patients)
         patients = patient_filter.qs
 
+        logout_url = reverse('account_logout')
+
         return render(request, self.template_name, {'worker': worker, 'logout_url': logout_url,
-                                                    'patients': patients, 'filter': patient_filter})
+                                                    'patients': patients, 'filter': patient_filter,
+                                                    'total_appointments': total_appointments,
+                                                    'accepted_count': accepted_count,
+                                                    'rejected_count': rejected_count,
+                                                    'pending_count': pending_count})
 
 
 @method_decorator(login_required, name='dispatch')
-class WorkerViewPatientView(IsHealthWorkerPermission, DetailView):
+class WorkerInformationView(UpdateView):
+    model = HealthWorker
+    form_class = WorkerInfoForm
+    template_name = 'home/worker_information.html'
+
+    def get_object(self, queryset=None):
+        # Ensure that the patient being updated belongs to the current user
+        return self.model.objects.get(user=self.request.user)
+
+    # def get_form(self, form_class=None):
+    #     form = super(WorkerInformationView, self).get_form(form_class)
+    #     form.fields['position'].widget.attrs['disabled'] = True
+    #     form.fields['department'].widget.attrs['readonly'] = True
+    #     return form
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user  # Assign the current user to the patient
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:worker_dashboard', kwargs={'user_id': self.request.user.pk})
+
+
+@method_decorator(login_required, name='dispatch')
+class WorkerViewPatientView(DetailView):
     model = Patient
     template_name = 'home/view_patient.html'
     context_object_name = 'patient'
@@ -155,13 +96,14 @@ class HealthStatisticView(View):
 
     def get(self, request, *args, **kwargs):
         patient_count = Patient.objects.count()
-        diabetic_patients = Patient.objects.filter(is_diabetic=True).count()
-        fever_patients = Patient.objects.filter(has_fever=True).count()
-        allergy_patients = Patient.objects.filter(has_allergy=True).count()
+        diabetic_patients = Patient.objects.filter(diabetic=True).count()
+        fever_patients = Patient.objects.filter(fever=True).count()
+        allergy_patients = Patient.objects.filter(allergy=True).count()
+        malaria_patients = Patient.objects.filter(malaria=True).count()
 
         # chart data
-        labels = ['Patients', 'Diabetic', 'Fever', 'Allergy']
-        data = [patient_count, diabetic_patients, fever_patients, allergy_patients]
+        labels = ['Patients', 'Diabetic', 'Fever', 'Allergy', 'Malaria']
+        data = [patient_count, diabetic_patients, fever_patients, allergy_patients, malaria_patients]
 
         context = {
             'labels': labels,
@@ -177,29 +119,17 @@ class PatientDashboardView(View):
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
-        try:
-            patient_user = CustomUser.objects.get(pk=user_id)
-        except CustomUser.DoesNotExist:
-            # Handle the case where the user with the given ID does not exist
-            return render(request, 'error.html', {'error_message': 'User not found'})
-
-        patient = Patient.objects.get(user=patient_user)
-        diabetic_patients = Patient.objects.filter(is_diabetic=True).count()
-        fever_patients = Patient.objects.filter(has_fever=True).count()
-        allergy_patients = Patient.objects.filter(has_allergy=True).count()
-
-        # chart data
-        labels = ['Diabetic', 'Fever', 'Allergy']
-        data = [diabetic_patients, fever_patients, allergy_patients]
+        patient_user = get_object_or_404(CustomUser, pk=user_id)
+        patient = get_object_or_404(Patient, user=patient_user)
 
         workers = HealthWorker.objects.all()
         worker_filter = WorkerPositionFilter(request.GET, queryset=workers)
         workers = worker_filter.qs
-        logout_url = reverse('core:logout')
+        logout_url = reverse('account_logout')
 
         return render(request, self.template_name, {
             'patient': patient, 'logout_url': logout_url, **patient.__dict__, 'workers': workers,
-            'filter': worker_filter, 'labels': labels, 'data': data})
+            'filter': worker_filter})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -212,12 +142,22 @@ class PatientInformationView(UpdateView):
         # Ensure that the patient being updated belongs to the current user
         return self.model.objects.get(user=self.request.user)
 
+    # def get_form(self, form_class=None):
+    #     form = super(PatientInformationView, self).get_form(form_class)
+    #     form.fields['age'].widget.attrs['readonly'] = True
+    #     form.fields['gender'].widget.attrs['disabled'] = True
+    #     form.fields['blood_group'].widget.attrs['disabled'] = True
+    #     form.fields['genotype'].widget.attrs['disabled'] = True
+    #     form.fields['height'].widget.attrs['readonly'] = True
+    #     form.fields['weight'].widget.attrs['readonly'] = True
+    #     return form
+
     def form_valid(self, form):
         form.instance.user = self.request.user  # Assign the current user to the patient
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('core:patient_dashboard', kwargs={'user_id': self.request.user.id})
+        return reverse('core:patient_dashboard', kwargs={'user_id': self.request.user.pk})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -227,7 +167,7 @@ class BookAppointmentView(View):
     def get(self, request, *args, **kwargs):
         # Assuming 'worker_id' is passed in the URL
         patient_id = self.kwargs.get('user_id')
-        patient = Patient.objects.get(user=patient_id)
+        patient = get_object_or_404(Patient, user=patient_id)
         workers = HealthWorker.objects.all()
         form = AppointmentForm(initial={'patient': patient})
         return render(request, self.template_name, {'form': form, 'workers': workers})
@@ -236,7 +176,7 @@ class BookAppointmentView(View):
         form = AppointmentForm(request.POST)
         if form.is_valid():
             appointment = form.save(commit=False)
-            patient = Patient.objects.get(user=request.user)
+            patient = get_object_or_404(Patient, user=request.user)
             appointment.patient = patient
             appointment.status = 'pending'
             appointment.save()
@@ -249,16 +189,13 @@ class BookAppointmentView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class AcceptRejectAppointmentView(IsHealthWorkerPermission, View):
+class AcceptRejectAppointmentView( View):
     template_name = 'home/status.html'
 
     def get(self, request, *args, **kwargs):
-        worker_id = self.kwargs.get('user_id')
-        try:
-            worker = HealthWorker.objects.get(user=worker_id)
-            appointments = Appointment.objects.filter(worker=worker).filter(status='pending')
-        except (Appointment.DoesNotExist, HealthWorker.DoesNotExist):
-            return render(request, 'error.html', {'error_message': 'Appointment or Health Worker not found'})
+        worker_id = self.kwargs.get('pk')
+        worker = get_object_or_404(HealthWorker, user=worker_id)
+        appointments = Appointment.objects.filter(worker=worker).filter(status='pending')
 
         return render(request, self.template_name, {'appointment': appointments})
 
@@ -267,11 +204,7 @@ class AcceptRejectAppointmentView(IsHealthWorkerPermission, View):
         appointment_id = request.POST.get('item_id')
         worker_id = self.kwargs.get('user_id')
         action = request.POST.get('action')
-        try:
-            appointment = Appointment.objects.get(id=appointment_id)
-            # worker = HealthWorker.objects.get(user=worker_id)
-        except (Appointment.DoesNotExist):
-            return render(request, 'error.html', {'error_message': 'Appointment or Health Worker not found'})
+        appointment = get_object_or_404(Appointment, id=appointment_id)
 
         if action == 'accept':
             appointment.accept_appointment()
@@ -279,5 +212,3 @@ class AcceptRejectAppointmentView(IsHealthWorkerPermission, View):
             appointment.reject_appointment()
 
         return redirect('core:worker_dashboard', user_id=request.user.id)
-
-
