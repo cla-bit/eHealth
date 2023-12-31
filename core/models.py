@@ -9,18 +9,12 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class CustomUser(AbstractUser):
-    POSITIONS = (
-        ('admin', 'Admin'),
-        ('doctor', 'Doctor'),
-        ('nurse', 'Nurse'),
-        ('pharmacist', 'Pharmacist'),
-    )
     email = models.EmailField(_('email address'), unique=True)
     username = models.CharField(_('username'), null=True, blank=True, max_length=100)
     phone_number = PhoneNumberField(blank=True, unique=True, null=True, verbose_name="Phone Number",
                                     error_messages={'unique': 'Phone number already used'})
-    position = models.CharField(max_length=32, null=True, blank=True, choices=POSITIONS)
     is_worker = models.BooleanField(default=False)
+    agreement = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'phone_number']
@@ -30,7 +24,15 @@ class CustomUser(AbstractUser):
 
 
 class HealthWorker(models.Model):
+    POSITIONS = (
+        ('admin', 'Admin'),
+        ('doctor', 'Doctor'),
+        ('nurse', 'Nurse'),
+        ('pharmacist', 'Pharmacist'),
+    )
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='worker')
+    position = models.CharField(max_length=32, null=True, blank=True, choices=POSITIONS)
     department = models.CharField(max_length=200, null=True)
 
     class Meta:
@@ -42,7 +44,7 @@ class HealthWorker(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        group, _ = Group.objects.get_or_create(name='Health Worker')
+        group, _ = Group.objects.get_or_create(name='Health Workers')
         self.user.groups.add(group)
 
     def delete(self, *args, **kwargs):
@@ -55,16 +57,39 @@ class HealthWorker(models.Model):
 
 
 class Patient(models.Model):
+    BLOOD_GROUP_CHOICES = (
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+    )
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+    )
+    GENOTYPE_CHOICES = (
+        ('AA', 'AA'),
+        ('AS', 'AS'),
+        ('SS', 'SS'),
+        ('AS', 'AS'),
+        ('AC', 'AC'),
+        ('CC', 'CC'),
+    )
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='patient')
-    blood_group = models.CharField(max_length=10, null=True, blank=True)
+    blood_group = models.CharField(max_length=4, null=True, blank=True, choices=BLOOD_GROUP_CHOICES)
     age = models.IntegerField(null=True, blank=True)
-    gender = models.CharField(max_length=10, null=True, blank=True)
+    gender = models.CharField(max_length=10, null=True, blank=True, choices=GENDER_CHOICES)
+    genotype = models.CharField(max_length=10, null=True, blank=True, choices=GENOTYPE_CHOICES)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
-    # malaria = models.BooleanField(default=False)
-    is_diabetic = models.BooleanField(default=False)
-    has_allergy = models.BooleanField(default=False)
-    has_fever = models.BooleanField(default=False)
+    malaria = models.BooleanField(default=False)
+    diabetic = models.BooleanField(default=False)
+    allergy = models.BooleanField(default=False)
+    fever = models.BooleanField(default=False)
     worker = models.ManyToManyField(HealthWorker, blank=True, related_name='patients')
 
     class Meta:
@@ -104,15 +129,18 @@ class Appointment(models.Model):
         self.status = 'rejected'
         self.save()
 
-    def total_accepted_appointments(self):
-        return Appointment.objects.filter(worker=self.worker, status='accepted').count()
-
-    def total_rejected_appointments(self):
-        return Appointment.objects.filter(worker=self.worker, status='rejected').count()
-
-    def total_pending_appointments(self):
-        return Appointment.objects.filter(worker=self.worker, status='pending').count()
+    # def total_accepted_appointments(self):
+    #     return Appointment.objects.filter(worker=self.worker, status='accepted').count()
+    #
+    # def total_rejected_appointments(self):
+    #     return Appointment.objects.filter(worker=self.worker, status='rejected').count()
+    #
+    # def total_pending_appointments(self):
+    #     return Appointment.objects.filter(worker=self.worker, status='pending').count()
+    #
+    # def total_appointments(self):
+    #     total = self.total_accepted_appointments() + self.total_rejected_appointments() + self.total_pending_appointments()
+    #     return total
 
     def __str__(self):
         return f'{self.worker} - {self.patient} - {self.date} {self.time}'
-
