@@ -16,6 +16,7 @@
                     <form method="GET" action="{% url 'core:worker_dashboard' user.id %}">
                         <div class="flex-form">
                             <div class="input-group input-group-outline form-item">
+                                <label class="form-select-label" for="{{ filter.form.blood_group.id_for_label }}">{{ filter.form.blood_group.label_tag }}</label>
                                 {{ filter.form.blood_group|attr:'class:form-control'|attr:"placeholder:Blood Group" }}
                             </div>
                             <div class="input-group input-group-outline form-item">
@@ -64,6 +65,107 @@
                     </button>
                 </div>
             {% endif %}
+
+            <div class="row mb-2">
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Username</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ worker.user.username }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Email Address</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ worker.user.email }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Profession</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ worker.position }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Total Appointments</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ total_appointments }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Total Pending Appointments</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ pending_count }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Total Rejected Appointments</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ rejected_count }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-sm-6 mb-xl-0">
+                    <div class="card p-3">
+                        <div class="card-header p-3 pt-2 pb-0">
+                            <div class="text-start">
+                                <p class="text-sm mb-0 text-capitalize">Total Accepted Appointments</p>
+                                <h6 class="m-0"><span class="font-weight-light text-color">{{ accepted_count }}</span></h6>
+                            </div>
+                        </div>
+                        <hr class="dark horizontal my-0">
+                        <div class="card-footer px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
 
             <div class="row">
                 <div class="col-12">
@@ -118,10 +220,12 @@
                                             <span class="text-secondary text-xs font-weight-bold">{{ patient.weight }}</span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="{% url 'core:patient_detail' user_id=user.id pk=patient.pk %}" class="text-secondary font-weight-bold text-xs"
-                                               data-toggle="tooltip" data-original-title="Edit user">
-                                                Edit
-                                            </a>
+                                            <button type="button" class="btn btn-sm btn-gradient-secondary text-light font-weight-bold text-xs">
+                                                <a href="{% url 'core:patient_detail' user_id=user.id pk=patient.pk %}" class="font-weight-bold text-xs"
+                                                   data-toggle="tooltip" data-original-title="Edit user">
+                                                    View Patient Medical History
+                                                </a>
+                                            </button>
                                         </td>
                                     </tr>
                                     {% endfor %}
