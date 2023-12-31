@@ -8,6 +8,7 @@
     {% endblock %}
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
 
+
         <div class="container-fluid py-2 container-fluid-height">
             {% block zoom_list %}
             {% if messages %}
@@ -33,10 +34,16 @@
                                             {{ form.age|add_class:"form-control"|attr:"placeholder:Age" }}
                                         </div>
                                         <div class="input-group input-group-outline mb-3">
+                                            <label class="">Gender</label>
                                             {{ form.gender|add_class:"form-control"|attr:"placeholder:Gender" }}
                                         </div>
                                         <div class="input-group input-group-outline mb-3">
+                                            <label class="">Blood Group</label>
                                             {{ form.blood_group|add_class:"form-control"|attr:"placeholder:Blood Group" }}
+                                        </div>
+                                        <div class="input-group input-group-outline mb-3">
+                                            <label class="">Genotype</label>
+                                            {{ form.genotype|add_class:"form-control"|attr:"placeholder:Genotype" }}
                                         </div>
                                         <div class="input-group input-group-outline mb-3">
                                             {{ form.height|add_class:"form-control"|attr:"placeholder:Height" }}
@@ -45,16 +52,20 @@
                                             {{ form.weight|add_class:"form-control"|attr:"placeholder:Weight" }}
                                         </div>
                                         <div class="form-check form-check-info text-start ps-0">
-                                            <label class="form-check-label" for="{{ form.is_diabetic.id_for_label }}">{{ form.is_diabetic.label_tag }}</label>
-                                            {{ form.is_diabetic|add_class:"form-check-input" }}
+                                            <label class="form-check-label" for="{{ form.diabetic.id_for_label }}">{{ form.diabetic.label_tag }}</label>
+                                            {{ form.diabetic|add_class:"form-check-input" }}
                                         </div>
                                         <div class="form-check form-check-info text-start ps-0">
-                                            <label class="form-check-label" for="{{ form.has_fever.id_for_label }}">{{ form.has_fever.label_tag }}</label>
-                                            {{ form.has_fever|add_class:"form-check-input" }}
+                                            <label class="form-check-label" for="{{ form.fever.id_for_label }}">{{ form.fever.label_tag }}</label>
+                                            {{ form.fever|add_class:"form-check-input" }}
                                         </div>
                                         <div class="form-check form-check-info text-start ps-0">
-                                            <label class="form-check-label" for="{{ form.has_allergy.id_for_label }}">{{ form.has_allergy.label_tag }}</label>
-                                            {{ form.has_allergy|add_class:"form-check-input" }}
+                                            <label class="form-check-label" for="{{ form.allergy.id_for_label }}">{{ form.allergy.label_tag }}</label>
+                                            {{ form.allergy|add_class:"form-check-input" }}
+                                        </div>
+                                        <div class="form-check form-check-info text-start ps-0">
+                                            <label class="form-check-label" for="{{ form.malaria.id_for_label }}">{{ form.malaria.label_tag }}</label>
+                                            {{ form.malaria|add_class:"form-check-input" }}
                                         </div>
 
 
@@ -70,6 +81,48 @@
                     </div>
                 </div>
             </div>
+
+
+<!--            <script>-->
+<!--                document.addEventListener('DOMContentLoaded', function() {-->
+<!--                    // Select the form and submit button-->
+<!--                    const form = document.querySelector('form');-->
+<!--                    const submitButton = document.querySelector('button[type="submit"]');-->
+<!--    -->
+<!--                    // Check if form inputs are already filled-->
+<!--                    function areFormInputsFilled() {-->
+<!--                        const inputs = form.querySelectorAll('input');-->
+<!--                        for (const input of inputs) {-->
+<!--                            if (!input.value.trim()) {-->
+<!--                                return false; // Return false if any input is not filled-->
+<!--                            }-->
+<!--                        }-->
+<!--                        return true; // All inputs are filled-->
+<!--                    }-->
+<!--    -->
+<!--                    // Disable the submit button if form inputs are already filled-->
+<!--                    if (areFormInputsFilled()) {-->
+<!--                        submitButton.disabled = true;-->
+<!--                    }-->
+<!--    -->
+<!--                    // Add a submit event listener to the form-->
+<!--                    form.addEventListener('submit', function() {-->
+<!--                        // Disable the submit button after form submission-->
+<!--                        submitButton.disabled = true;-->
+<!--    -->
+<!--                        // Optionally, you can change the text of the button to indicate submission-->
+<!--                        submitButton.innerHTML = 'Submitting...';-->
+<!--                    });-->
+<!--    -->
+<!--                    // Add input event listeners to check for changes in form inputs-->
+<!--                    form.addEventListener('input', function() {-->
+<!--                        // Enable the submit button if form inputs are filled-->
+<!--                        submitButton.disabled = !areFormInputsFilled();-->
+<!--                    });-->
+<!--                });-->
+<!--            </script>-->
+
+
 
             {% endblock %}
 
