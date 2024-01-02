@@ -43,16 +43,40 @@ Then create a Docker image. To do this, enter the command:
     $ make build
 ```
 
-Step 2 - set up a log file
+Step 2 - set up a log folder and file
 --------------------------
-create a log file in the root project - "cron"
+- create a log file in the root project if this has not been created - "cron/cron.log"
+- ensure you set the path in the log settings tot he cron log file
+```
+    'handlers': {
+        'cron_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR/'cron/cron.log',  # Replace with the desired path to your log file
+        },
+    },
 
-Step 3 - run the app
+```
+
+Step 3 - change the celery settings
+--------------------------
+Go to the ```backend/settings.py``` and change as seen:
+```
+    CELERY_BROKER_URL = "redis://rd-sqlite:6379"
+    CELERY_RESULT_BACKEND = "redis://rd-sqlite:6379"
+```
+
+Step 4 - run the app
 -------------------------
 launch the container
 ```
     $ docker-compose up --build
 ```
+
+Step 5 - go to the localhost port on your browser
+-------------------------
+```localport:8000```
+
 
 # Another way to run the app, through virtual env
 
