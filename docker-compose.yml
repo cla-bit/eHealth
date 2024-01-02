@@ -10,9 +10,9 @@ services:
       - mydata:/app/data
 
   # myApp
-  z2y-sqlite:
+  e-health:
     build: ./
-    container_name: z2y-sqlite
+    container_name: e-health
     volumes:
       - mydata:/app/data
       - datadb:/app/db.sqlite3
@@ -31,7 +31,7 @@ services:
     command: celery -A backend worker -l INFO
     depends_on:
       - rd-sqlite
-      - z2y-sqlite
+      - e-health
     volumes:
       - mydata:/app/data
       - datadb:/app/db.sqlite3
